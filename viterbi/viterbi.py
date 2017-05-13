@@ -39,7 +39,7 @@ def ViterbiPath(Observations, TransitionProb, EmissionProb, StartSymbol = '<s>',
 
 if __name__ == '__main__':
     ##########################################################
-    observations = ['P']
+    observations = sys.stdin.read().split()
     file_name = 'epron.probs'
     file_name1 = 'epron-jpron.probs'
 
@@ -60,5 +60,5 @@ if __name__ == '__main__':
 
     s1 = time.clock()
     m = ViterbiPath(observations,TransitionProb,EmissionProb)
-    print ('Time for running the Algorithm:', time.clock()-s1)
-    print ('Probability: ' + str(m))
+    #print ('Time for running the Algorithm:', time.clock()-s1)
+    print 'Probability: ' + str(m)
