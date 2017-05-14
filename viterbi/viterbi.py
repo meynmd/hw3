@@ -2,6 +2,7 @@ import sys
 from collections import defaultdict
 import decode as d
 import time
+import numpy as np
 
 # Observations : list of string
 # TransitionProb : defaultdict of defaultdict of defaultdict mapping y1->y2->y3->p(y1, y2, y3)
@@ -13,8 +14,7 @@ def ViterbiPath(Observations, TransitionProb, EmissionProb, StartSymbol = '<s>',
     # graph : list of defaultdict of defaultdict for each observed state x,'
     # each dictionary maps probability of reaching state i after seeing states u and v
     graph = [defaultdict(lambda : defaultdict(float)) for o in Observations]
-
-    trace = defaultdict(dict)
+    trace = [defaultdict(dict) for o in Observations]
     states = TransitionProb.keys() + ['</s>']
 
     # initialize the probability graph
@@ -22,16 +22,16 @@ def ViterbiPath(Observations, TransitionProb, EmissionProb, StartSymbol = '<s>',
         for i in range(Order):
             graph[i][StartSymbol][StartSymbol] = 1.
         graph[Order][s][s] = EmissionProb[Observations[Order]][s] * TransitionProb[StartSymbol][StartSymbol][s]
-
+        
     # compute the rest
     for i in range(Order, len(Observations)):
         for u in states:
             for v in states:
-                graph[i][u][v] = max([
+                ps = [
                     graph[i - 1][t][u] * TransitionProb[t][u][v] * EmissionProb[v][Observations[i]]
                     for t in states
-                ])
-
+                ]
+                graph[i][u][v] = max(ps)
 
     return max([graph[i][u][v] for u in states for v in states])
 
@@ -60,5 +60,5 @@ if __name__ == '__main__':
 
     s1 = time.clock()
     m = ViterbiPath(observations,TransitionProb,EmissionProb)
-    #print ('Time for running the Algorithm:', time.clock()-s1)
+    print 'Time for running the Algorithm:', time.clock()-s1
     print 'Probability: ' + str(m)
